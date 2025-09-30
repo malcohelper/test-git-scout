@@ -59,11 +59,14 @@ jobs:
         run: |
           echo "📊 Generating stats for last 7 days..."
 
-          # Run git-scout and save output
-          git-scout stats --since 7d > /tmp/git-scout-output.txt 2>&1 || true
+          # Set project name to avoid interactive prompt
+          PROJECT_NAME="${{ github.repository }}"
+
+          # Run git-scout with project name and save output
+          echo "0" | git-scout stats --since 7d > /tmp/git-scout-output.txt 2>&1 || true
 
           # Also capture JSON if available
-          git-scout stats --since 7d --json > /tmp/git-scout-stats.json 2>&1 || echo '{}' > /tmp/git-scout-stats.json
+          echo "0" | git-scout stats --since 7d --json > /tmp/git-scout-stats.json 2>&1 || echo '{}' > /tmp/git-scout-stats.json
 
           # Display output
           cat /tmp/git-scout-output.txt
