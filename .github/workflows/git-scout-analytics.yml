@@ -2,8 +2,7 @@ name: Weekly Analytics Report
 
 on:
   schedule:
-    # Run every Monday at 9 AM UTC
-    - cron: "16 9 * * 2"
+    - cron: "22 9 * * 2"  # Thứ Ba 09:22 UTC (tức 16:22 giờ VN)
   workflow_dispatch: # Allow manual trigger
 
 permissions:
