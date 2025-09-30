@@ -21,7 +21,7 @@ jobs:
         uses: malcohelper/git-scout/.github/actions/git-scout@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          command: "stats --since 7d --json"
+          command: "stats --since 7d"
           post-comment: "false"
 
       - name: Create Issue with Report
