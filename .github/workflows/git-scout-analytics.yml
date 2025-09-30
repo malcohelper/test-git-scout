@@ -3,7 +3,7 @@ name: Weekly Analytics Report
 on:
   schedule:
     # Run every Monday at 9 AM UTC
-    - cron: "0 9 * * 1"
+    - cron: "16 9 * * 2"
   workflow_dispatch: # Allow manual trigger
 
 permissions:
@@ -38,9 +38,10 @@ jobs:
           # Create config directory
           mkdir -p ~/.git-scout
 
-          # Initialize with current repository
+          # Initialize with current repository as default
           cat > ~/.git-scout/config.json << EOF
           {
+            "defaultProject": "${{ github.repository }}",
             "projects": [
               {
                 "name": "${{ github.repository }}",
@@ -51,7 +52,7 @@ jobs:
           }
           EOF
 
-          echo "✅ Git Scout initialized"
+          echo "✅ Git Scout initialized with default project"
           cat ~/.git-scout/config.json
 
       - name: Generate Weekly Stats
@@ -59,16 +60,18 @@ jobs:
         run: |
           echo "📊 Generating stats for last 7 days..."
 
-          # Set project name to avoid interactive prompt
-          PROJECT_NAME="${{ github.repository }}"
+          # Run git-scout and suppress interactive prompts
+          # The config has default project, so it should auto-select
+          git-scout stats --since 7d > /tmp/git-scout-output.txt 2>&1 || true
 
-          # Run git-scout with project name and save output
-          echo "0" | git-scout stats --since 7d > /tmp/git-scout-output.txt 2>&1 || true
+          # Also capture JSON if available  
+          git-scout stats --since 7d --json > /tmp/git-scout-stats.json 2>&1 || echo '{}' > /tmp/git-scout-stats.json
 
-          # Also capture JSON if available
-          echo "0" | git-scout stats --since 7d --json > /tmp/git-scout-stats.json 2>&1 || echo '{}' > /tmp/git-scout-stats.json
+          # Clean up prompt artifacts from output
+          sed -i '/Select a project for statistics/d' /tmp/git-scout-output.txt 2>/dev/null || true
+          sed -i '/Use arrow keys/d' /tmp/git-scout-output.txt 2>/dev/null || true
 
-          # Display output
+          # Display cleaned output
           cat /tmp/git-scout-output.txt
 
           echo "✅ Stats generated"
