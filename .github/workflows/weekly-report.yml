@@ -61,14 +61,25 @@ jobs:
 
           # Run git-scout and suppress interactive prompts
           # The config has default project, so it should auto-select
-          git-scout stats --since 7d > /tmp/git-scout-output.txt 2>&1 || true
+          git-scout stats --since 7d > /tmp/git-scout-output-raw.txt 2>&1 || true
 
           # Also capture JSON if available  
           git-scout stats --since 7d --json > /tmp/git-scout-stats.json 2>&1 || echo '{}' > /tmp/git-scout-stats.json
 
-          # Clean up prompt artifacts from output
-          sed -i '/Select a project for statistics/d' /tmp/git-scout-output.txt 2>/dev/null || true
-          sed -i '/Use arrow keys/d' /tmp/git-scout-output.txt 2>/dev/null || true
+          # Clean up output - remove ANSI escape codes and interactive prompts
+          # Remove escape sequences like [79D, [79C, [2K, [1A, etc.
+          cat /tmp/git-scout-output-raw.txt | \
+            sed 's/\x1b\[[0-9;]*[A-Za-z]//g' | \
+            sed 's/\[[0-9]*[ABCDGKM]//g' | \
+            grep -v "Select a project for statistics" | \
+            grep -v "Use arrow keys" | \
+            grep -v "^[[:space:]]*$" | \
+            grep -v "❯" > /tmp/git-scout-output.txt || true
+
+          # If cleaned output is empty, show original
+          if [ ! -s /tmp/git-scout-output.txt ]; then
+            cp /tmp/git-scout-output-raw.txt /tmp/git-scout-output.txt
+          fi
 
           # Display cleaned output
           cat /tmp/git-scout-output.txt
