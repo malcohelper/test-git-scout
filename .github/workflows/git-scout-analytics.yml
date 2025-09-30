@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0  # Important: fetch full history
       
       - name: Run Git Scout Analysis
-        uses: ./.github/actions/git-scout  # ← Local path
+        uses: malcohelper/git-scout/.github/actions/git-scout@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           command: 'stats --since 7d --json'
