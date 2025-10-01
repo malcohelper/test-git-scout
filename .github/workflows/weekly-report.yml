@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Generate and Send Weekly Report
-        uses: ./.github/actions/git-scout
+        uses: malcohelper/git-scout/.github/actions/git-scout@main
         with:
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           report-title: "Weekly Analytics Report"
